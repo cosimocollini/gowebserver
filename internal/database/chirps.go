@@ -28,6 +28,27 @@ func (db *DB) CreateChirp(body string, userId int) (Chirp, error) {
 	return chirp, nil
 }
 
+func (db *DB) DeleteChirp(chirpId int) error {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return err
+	}
+
+	_, ok := dbStructure.Chirps[chirpId]
+	if !ok {
+		return ErrNotExist
+	}
+
+	delete(dbStructure.Chirps, chirpId)
+
+	err = db.writeDB(dbStructure)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (db *DB) GetChirps() ([]Chirp, error) {
 	dbStructure, err := db.loadDB()
 	if err != nil {
