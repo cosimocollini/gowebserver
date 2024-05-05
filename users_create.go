@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/cosimocollini/gowebserver/internal/auth"
+	"github.com/cosimocollini/gowebserver/internal/database"
 )
 
 type User struct {
@@ -15,8 +17,8 @@ type User struct {
 
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
-		Email    string `json:"email"`
 		Password string `json:"password"`
+		Email    string `json:"email"`
 	}
 	type response struct {
 		User
@@ -38,6 +40,11 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 
 	user, err := cfg.DB.CreateUser(params.Email, hashedPassword)
 	if err != nil {
+		if errors.Is(err, database.ErrAlreadyExists) {
+			respondWithError(w, http.StatusConflict, "User already exists")
+			return
+		}
+
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create user")
 		return
 	}

@@ -10,35 +10,6 @@ type User struct {
 
 var ErrAlreadyExists = errors.New("already exists")
 
-func (db *DB) GetUserByEmail(email string) (User, error) {
-	dbStructure, err := db.loadDB()
-	if err != nil {
-		return User{}, err
-	}
-
-	for _, user := range dbStructure.Users {
-		if user.Email == email {
-			return user, nil
-		}
-	}
-
-	return User{}, ErrNotExist
-}
-
-func (db *DB) GetUser(id int) (User, error) {
-	dbStructure, err := db.loadDB()
-	if err != nil {
-		return User{}, err
-	}
-
-	user, ok := dbStructure.Users[id]
-	if !ok {
-		return User{}, ErrNotExist
-	}
-
-	return user, nil
-}
-
 func (db *DB) CreateUser(email, hashedPassword string) (User, error) {
 	if _, err := db.GetUserByEmail(email); !errors.Is(err, ErrNotExist) {
 		return User{}, ErrAlreadyExists
@@ -63,6 +34,35 @@ func (db *DB) CreateUser(email, hashedPassword string) (User, error) {
 	}
 
 	return user, nil
+}
+
+func (db *DB) GetUser(id int) (User, error) {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return User{}, err
+	}
+
+	user, ok := dbStructure.Users[id]
+	if !ok {
+		return User{}, ErrNotExist
+	}
+
+	return user, nil
+}
+
+func (db *DB) GetUserByEmail(email string) (User, error) {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return User{}, err
+	}
+
+	for _, user := range dbStructure.Users {
+		if user.Email == email {
+			return user, nil
+		}
+	}
+
+	return User{}, ErrNotExist
 }
 
 func (db *DB) UpdateUser(id int, email, hashedPassword string) (User, error) {
