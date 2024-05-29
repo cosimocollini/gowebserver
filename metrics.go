@@ -26,3 +26,17 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func handlePage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(200)
+	const page = `<html>
+<head></head>
+<body>
+	<p> Hello from Docker! I'm a Go server. </p>
+	<p> Hi Docker, I pushed a new version! </p>
+</body>
+</html>
+`
+	w.Write([]byte(page))
+}
